@@ -1,0 +1,16 @@
+{
+    "contents" : "library(cluster)\n\nusers <- read.csv(\"kuangkuang.csv\", header=T, sep=\",\")\nuser.events <- scale(users[, 5:9])\n\nplot.wss <- function(data, maxclusters=10, main=\"\") {\n  wss = (nrow(data)-1)*sum(apply(data,2,var))\n  for (i in 2:maxclusters) wss[i] <- kmeans(data, centers=i)$tot.withinss\n  plot(1:maxclusters, wss, type=\"b\", xlab=\"Number of Clusters\",\n       ylab=\"Within groups sum of squares\", main=main)  \n}\n\n# plot.wss(user.events, main=\"user events\")\n\nuser.pca <- princomp(user.events, scores=T)\nuserp <- cbind(user.pca$scores[,1], user.pca$scores[,2])\nrownames(userp) <- users[,1]\n\n\nkclust <- kmeans(user.events, centers=4, nstart=100)\nclusplot(userp, kclust$cluster, color=TRUE, shade=TRUE, labels=2, lines=0, cex=0.8, main=\"cluster diagram\", sep=\"\")\n\nsink(\"kuangkuang.txt\")\nfor (cluster in seq(1, nrow(kclust$centers))) {\n  group.data <- users[kclust$cluster == cluster,]\n  if (sum(group.data$pay_order > 0) == nrow(group.data)) {\n    cat(\"框框的忠实用户包括:\\n\")\n    cat(paste(group.data$user_id, collapse=\", \"))\n    cat(\"\\n\")\n  }\n}\ncat(\"框框的用户可以分为2类，分别是:\\n\")\nfor (cluster in seq(1, nrow(kclust$centers))) {\n  group.data <- users[kclust$cluster == cluster,]\n  if (sum(group.data$order_product - group.data$pay_order) == nrow(group.data)) {\n    cat(\"只order不pay的用户包括:\\n\")\n    cat(paste(group.data$user_id, collapse=\", \"))\n    cat(\"\\n\")\n  }\n  if (sum(group.data$order_product == 0) == nrow(group.data)) {\n    cat(\"只看不order的用户包括:\\n\")\n    cat(paste(group.data$user_id, collapse=\", \"))\n    cat(\"\\n\")\n  }\n}\nsink()",
+    "created" : 1373441555137.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3316547191",
+    "id" : "BC60D8C6",
+    "lastKnownWriteTime" : 1373448104,
+    "path" : "~/Downloads/kuangkuang/kuangkuang/main.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}
